@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Voice Assistant",
+  "version": "1.0",
+  "description": "Voice-controlled Chrome assistant",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tts"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Voice Assistant"
+  },
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ]
+}
