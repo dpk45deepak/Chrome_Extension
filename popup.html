@@ -1,472 +1,234 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <style>
-    :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --primary-light: #8b5cf6;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --dark: #1e293b;
-      --light: #f8fafc;
-      --gray: #64748b;
-      --gray-light: #e2e8f0;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      width: 360px;
-      min-height: 500px;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      overflow-x: hidden;
-    }
-    
-    .container {
-      padding: 0;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .header {
-      text-align: center;
-      padding: 24px 20px 16px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(10px);
-    }
-    
-    .header h1 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      letter-spacing: -0.5px;
-    }
-    
-    .header p {
-      font-size: 14px;
-      opacity: 0.9;
-      font-weight: 400;
-    }
-    
-    .voice-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      position: relative;
-    }
-    
-    .voice-bubble-container {
-      position: relative;
-      margin-bottom: 30px;
-    }
-    
-    .voice-bubble {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .voice-bubble:before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      transform: scale(0);
-      transition: transform 0.3s ease;
-    }
-    
-    .voice-bubble:hover:before {
-      transform: scale(1);
-    }
-    
-    .voice-bubble.listening {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: rgba(239, 68, 68, 0.5);
-      animation: pulse 1.5s infinite;
-    }
-    
-    .voice-bubble.listening .mic-icon {
-      transform: scale(1.1);
-    }
-    
-    .voice-bubble:active {
-      transform: scale(0.95);
-    }
-    
-    .mic-icon {
-      width: 48px;
-      height: 48px;
-      color: white;
-      z-index: 2;
-      transition: all 0.3s ease;
-    }
-    
-    .voice-instruction {
-      text-align: center;
-      margin-top: 16px;
-    }
-    
-    .voice-instruction h3 {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    
-    .voice-instruction p {
-      font-size: 14px;
-      opacity: 0.8;
-      line-height: 1.5;
-    }
-    
-    .status-section {
-      width: 100%;
-      padding: 16px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      margin-top: 20px;
-    }
-    
-    #status {
-      font-size: 14px;
-      text-align: center;
-      min-height: 20px;
-      font-weight: 500;
-    }
-    
-    .controls {
-      display: flex;
-      gap: 12px;
-      padding: 16px 20px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .control-btn {
-      flex: 1;
-      padding: 10px 16px;
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    
-    .control-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
-      transform: translateY(-2px);
-    }
-    
-    .control-btn.active {
-      background: var(--success);
-    }
-    
-    .control-btn svg {
-      width: 16px;
-      height: 16px;
-    }
-    
-    .history-panel {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(30, 41, 59, 0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 20px 20px 0 0;
-      padding: 20px;
-      transform: translateY(100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      max-height: 300px;
-      overflow-y: auto;
-      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
-    }
-    
-    .history-panel.open {
-      transform: translateY(0);
-    }
-    
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    
-    .history-header h3 {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    
-    .close-history {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 6px;
-    }
-    
-    .close-history:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .command-history {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    
-    .history-item {
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      font-size: 13px;
-      border-left: 3px solid var(--primary);
-    }
-    
-    .history-item.success {
-      border-left-color: var(--success);
-    }
-    
-    .history-item.error {
-      border-left-color: var(--danger);
-    }
-    
-    .history-command {
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-    
-    .history-details {
-      font-size: 11px;
-      opacity: 0.7;
-      display: flex;
-      justify-content: space-between;
-    }
-    
-    .empty-history {
-      text-align: center;
-      padding: 20px;
-      opacity: 0.7;
-      font-size: 14px;
-    }
-    
-    .wake-word-status {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.15);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
-    .wake-word-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--danger);
-      animation: pulse 2s infinite;
-    }
-    
-    .wake-word-dot.active {
-      background: var(--success);
-    }
-    
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-      }
-      70% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-      }
-      100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-      }
-    }
-    
-    @keyframes ripple {
-      0% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(3);
-        opacity: 0;
-      }
-    }
-    
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      transform: scale(0);
-      animation: ripple 0.6s linear;
-      pointer-events: none;
-    }
-    
-    /* Scrollbar styling */
-    .history-panel::-webkit-scrollbar {
-      width: 6px;
-    }
-    
-    .history-panel::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-    }
-    
-    .history-panel::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 3px;
-    }
-    
-    .history-panel::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.5);
-    }
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vani - AI Voice Assistant</title>
+    <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Vani</h1>
-      <p>Your Intelligent Voice Assistant</p>
-    </div>
-    
-    <div class="voice-section">
-      <div class="wake-word-status" id="wake-word-status">
-        <div class="wake-word-dot" id="wake-word-dot"></div>
-        <span id="wake-word-text">Hey Vani</span>
-      </div>
-      
-      <div class="voice-bubble-container">
-        <div class="voice-bubble" id="voice-bubble">
-          <svg class="mic-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-          </svg>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="header-content">
+                <h1>🎙️ Vani</h1>
+                <p>Your AI Voice Assistant</p>
+            </div>
+            <div class="status-indicators">
+                <div class="status-item" id="wake-word-status">
+                    <div class="status-dot" id="wake-word-dot"></div>
+                    <span id="wake-word-text">Wake Word</span>
+                </div>
+                <div class="status-item" id="continuous-status">
+                    <div class="status-dot" id="continuous-dot"></div>
+                    <span id="continuous-text">Continuous</span>
+                </div>
+            </div>
         </div>
-      </div>
-      
-      <div class="voice-instruction">
-        <h3>Press and hold while speaking</h3>
-        <p>Hold to talk with live voice orb UI</p>
-      </div>
-      
-      <div class="status-section">
-        <div id="status">Ready for voice commands</div>
-      </div>
+
+        <!-- Main Voice Interface -->
+        <div class="voice-interface">
+            <div class="voice-visualization">
+                <div class="voice-orb" id="voice-orb">
+                    <div class="orb-inner">
+                        <svg class="mic-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="visualization-bars" id="visualization-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+
+            <div class="voice-instructions">
+                <h3 id="instruction-text">Tap and hold to speak</h3>
+                <p id="status-text">Ready to help with your commands</p>
+            </div>
+
+            <!-- Quick Commands Grid -->
+            <div class="quick-commands-grid">
+                <div class="quick-command" data-command="open youtube">
+                    <span class="command-icon">📺</span>
+                    <span class="command-text">Open YouTube</span>
+                </div>
+                <div class="quick-command" data-command="search">
+                    <span class="command-icon">🔍</span>
+                    <span class="command-text">Search Web</span>
+                </div>
+                <div class="quick-command" data-command="new tab">
+                    <span class="command-icon">📑</span>
+                    <span class="command-text">New Tab</span>
+                </div>
+                <div class="quick-command" data-command="read page">
+                    <span class="command-icon">📖</span>
+                    <span class="command-text">Read Page</span>
+                </div>
+                <div class="quick-command" data-command="go back">
+                    <span class="command-icon">↩️</span>
+                    <span class="command-text">Go Back</span>
+                </div>
+                <div class="quick-command" data-command="scroll down">
+                    <span class="command-icon">⬇️</span>
+                    <span class="command-text">Scroll Down</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <button class="control-btn" id="history-btn" title="Command History">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                    <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                </svg>
+            </button>
+            
+            <button class="control-btn" id="custom-cmd-btn" title="Custom Commands">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+            </button>
+            
+            <button class="control-btn" id="settings-btn" title="Settings">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+            </button>
+            
+            <button class="control-btn" id="help-btn" title="Help & Commands">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+            </button>
+        </div>
     </div>
-    <!-- Hidden iframe container -->
-<div id="iframe-container" style="
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  z-index: 9999;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
-  padding: 10px;
-  box-sizing: border-box;
-">
-  <iframe id="web-iframe" 
-    src="" 
-    frameborder="0"
-    style="
-      width: 100%;
-      height: 90%;
-      border-radius: 12px;
-      border: none;
-      background: white;
-    ">
-  </iframe>
-  <button id="close-iframe" style="
-    margin-top: 10px;
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background: var(--danger);
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-  ">Close</button>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="close-modal" id="close-settings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="wake-word-toggle">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">Enable "Hey Vani" Wake Word</span>
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="continuous-toggle">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">Continuous Listening Mode</span>
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="gemini-toggle">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">Enable Gemini AI Features</span>
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <label>Voice Speed</label>
+                    <div class="slider-container">
+                        <input type="range" id="voice-rate" min="0.5" max="2" step="0.1" value="1.0">
+                        <span class="slider-value" id="voice-rate-value">1.0</span>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <label>Voice Pitch</label>
+                    <div class="slider-container">
+                        <input type="range" id="voice-pitch" min="0.5" max="2" step="0.1" value="1.0">
+                        <span class="slider-value" id="voice-pitch-value">1.0</span>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="gemini-api-key">Gemini API Key</label>
+                    <input type="password" id="gemini-api-key" placeholder="Enter your Gemini API key" class="api-key-input">
+                    <small class="help-text">Get your API key from <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal" id="history-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Command History</h3>
+                <div>
+                    <button class="icon-btn" id="clear-history" title="Clear History">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                    <button class="close-modal" id="close-history">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="command-history-list" class="history-list">
+                    <!-- History items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Commands Modal -->
+    <div class="modal" id="custom-commands-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Custom Commands</h3>
+                <div>
+                    <button class="icon-btn" id="add-command-btn" title="Add New Command">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                    </button>
+                    <button class="close-modal" id="close-custom-commands">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="add-command-form" id="add-command-form">
+                    <h4>Add New Command</h4>
+                    <div class="form-group">
+                        <label for="command-trigger">Voice Trigger</label>
+                        <input type="text" id="command-trigger" placeholder="e.g., open gmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="command-action">Action</label>
+                        <input type="text" id="command-action" placeholder="e.g., https://gmail.com or 'new tab'">
+                    </div>
+                    <button class="btn-primary" id="save-command">Save Command</button>
+                </div>
+                
+                <div class="custom-commands-list" id="custom-commands-list">
+                    <!-- Custom commands will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple, works anywhere -->
+<div class="top-bar">
+  <button id="detach-btn" class="more-btn" title="Open in persistent window">📌 Window</button>
+  <a class="more-btn" href="https://voiceassistantv1.netlify.app/" target="_blank" rel="noopener noreferrer">More</a>
 </div>
 
-    
-    <div class="controls">
-      <button class="control-btn" id="history-btn">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
-        </svg>
-        History
-      </button>
-      <button class="control-btn" id="wake-word-btn">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-        </svg>
-        Hey Vani
-      </button>
-    </div>
-    
-    <div class="history-panel" id="history-panel">
-      <div class="history-header">
-        <h3>Command History</h3>
-        <button class="close-history" id="close-history">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-        </button>
-      </div>
-      <div class="command-history" id="command-history">
-        <!-- Command history will be populated here -->
-      </div>
-    </div>
-  </div>
-  
-  <script src="popup.js"></script>
+
+    <script src="popup.js"></script>
 </body>
 </html>
